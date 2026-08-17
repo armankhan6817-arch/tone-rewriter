@@ -1,0 +1,5 @@
+{
+    "workbench.secondarySideBar.defaultVisibility": "visibleInWorkspace",
+    "workbench.activityBar.location": "hidden",
+    "workbench.auxiliaryActivityBar.location": "hidden"
+}

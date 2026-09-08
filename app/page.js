@@ -6,10 +6,24 @@ export default function Tonewriter() {
   const [text, setText] = useState("");
   const [tone, setTone] = useState("");
   const [output, setOutput] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleRewrite(chosenTone) {
+  async function handleRewrite(chosenTone) {
     setTone(chosenTone);
-    setOutput(`${chosenTone}: ${text}`);
+    setLoading(true);
+    if (text.trim() === "") {
+      setOutput("Please enter some text to rewrite.");
+      setLoading(false);
+      return;
+    }
+    const res = await fetch("/api/rewrite", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: text, tone: chosenTone }),
+    });
+    const data = await res.json();
+    setOutput(` ${data.output}`);
+    setLoading(false);
   }
 
   return (
@@ -28,37 +42,48 @@ export default function Tonewriter() {
 
         <div className="flex flex-wrap  gap-1">
           <button
-            className={`bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg ${tone === "casual" ? "bg-green-500" : ""}`}
+            disabled={loading}
+            className={`bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg ${tone === "casual" ? "bg-green-500" : ""}  disabled:opacity-50 disabled:cursor-not-allowed `}
             onClick={() => handleRewrite("casual")}
           >
             Casual
           </button>
           <button
-            className={`bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg ${tone === "formal" ? "bg-green-500" : ""}`}
+            disabled={loading}
+            className={`bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg ${tone === "formal" ? "bg-green-500" : ""} disabled:opacity-50 disabled:cursor-not-allowed `}
             onClick={() => handleRewrite("formal")}
           >
             Formal
           </button>
           <button
-            className={`bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg ${tone === "funny" ? "bg-green-500" : ""}`}
+            disabled={loading}
+            className={`bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg ${tone === "funny" ? "bg-green-500" : ""}  disabled:opacity-50 disabled:cursor-not-allowed `}
             onClick={() => handleRewrite("funny")}
           >
             Funny
           </button>
           <button
-            className={`bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg ${tone === "professional" ? "bg-green-500" : ""}`}
+            disabled={loading}
+            className={`bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg ${tone === "professional" ? "bg-green-500" : ""}  disabled:opacity-50 disabled:cursor-not-allowed `}
             onClick={() => handleRewrite("professional")}
           >
             Professional
           </button>
         </div>
         <div>
-
-          {output &&
+          {loading ? (
+            <p className="text-white rounded-xl font-medium transition-all shadow-lg shadow-indigo-500/20 active:scale-[0.98] mt-4 p-4 bg-slate-800">
+              Loading...
+            </p>
+          ) : output ? (
             <p className="text-white rounded-xl font-medium transition-all shadow-lg shadow-indigo-500/20 active:scale-[0.98] mt-4 p-4 bg-slate-800">
               {output}
             </p>
-          }
+          ) : (
+            <p className="text-white rounded-xl font-medium transition-all shadow-lg shadow-indigo-500/20 active:scale-[0.98] mt-4 p-4 bg-slate-800">
+              Please enter text and select a tone to rewrite.
+            </p>
+          )}
         </div>
       </div>
     </main>

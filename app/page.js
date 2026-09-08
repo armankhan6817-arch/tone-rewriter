@@ -10,20 +10,29 @@ export default function Tonewriter() {
 
   async function handleRewrite(chosenTone) {
     setTone(chosenTone);
-    setLoading(true);
     if (text.trim() === "") {
       setOutput("Please enter some text to rewrite.");
-      setLoading(false);
       return;
     }
-    const res = await fetch("/api/rewrite", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: text, tone: chosenTone }),
-    });
-    const data = await res.json();
-    setOutput(` ${data.output}`);
-    setLoading(false);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/rewrite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: text, tone: chosenTone }),
+      });
+      if (!res.ok) {
+        throw new Error("Failed to rewrite text.");
+      }
+      const data = await res.json();
+
+      setOutput(` ${data.output}`);
+    } catch (error) {
+      console.error(error);
+      setOutput("An error occurred while rewriting the text.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
